@@ -1,0 +1,53 @@
+1st Method
+
+set serveroutput ON;
+create or replace procedure calculate_feedback(itemno IN feedback.item_no%type) AS
+thisRating feedback.rating%TYPE;
+sum_a numeric(5,1);
+count_a numeric(5,1);
+
+CURSOR calculate_rating IS 
+select rating from feedback where item_no = itemno;
+BEGIN
+	sum_a := 0.0;
+    count_a := 0.0;
+	FOR item_rating in calculate_rating
+   	LOOP
+        sum_a := sum_a + item_rating.rating;
+        count_a := count_a + 1.0;
+        dbms_output.put_line(sum_a);
+   	END LOOP;
+    sum_a := sum_a/count_a;
+	update buy_it_now_items set rating = sum_a where item_number =itemno;
+END;
+
+BEGIN
+calculate_feedback(372922383911);
+END;
+
+2nd Method
+
+create or replace procedure calculate_feedback(itemno IN feedback.item_no%TYPE, currentRating IN feedback.rating%TYPE) AS
+thisRating buy_it_now_items.rating%TYPE;
+rating_sum numeric(5,1);
+row_count numeric(5,1);
+
+CURSOR calculate_rating IS 
+select rating from feedback where item_no = itemno;
+BEGIN
+	OPEN calculate_rating;
+		rating_sum := 0.0;
+   	LOOP
+		FETCH calculate_rating into thisRating;
+		EXIT WHEN calculate_rating%NOTFOUND;
+        rating_sum := rating_sum + thisRating;
+   	END LOOP;
+    row_count := calculate_rating%ROWCOUNT;
+    dbms_output.put_line(rating_sum || row_count);
+    UPDATE buy_it_now_items set rating = (rating_sum+currentRating)/(row_count+1) where item_number = itemno;
+	CLOSE calculate_rating;
+END;
+
+BEGIN
+calculate_feedback(372922383911);
+END;

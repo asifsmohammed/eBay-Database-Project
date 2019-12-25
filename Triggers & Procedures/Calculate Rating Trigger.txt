@@ -1,0 +1,9 @@
+create or replace TRIGGER update_rating
+AFTER INSERT ON FEEDBACK
+FOR EACH ROW
+DECLARE
+PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+	calculate_feedback(:NEW.item_no, :NEW.rating);
+    COMMIT;
+END;

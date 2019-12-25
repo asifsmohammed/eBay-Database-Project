@@ -1,0 +1,32 @@
+set serveroutput ON;
+create or replace procedure update_minbid(itemno IN bids.item_no%TYPE, bidPrice IN bids.bid_amount%TYPE) AS
+    minBidPrice bid_items.min_bid%TYPE;
+    currentBidprice bid_items.bid_price%TYPE;
+
+BEGIN
+	currentBidprice := bidPrice;
+	minBidPrice := 0.0;
+	IF currentBidprice >= 0.01 AND currentBidprice <= 0.99 THEN
+		minBidPrice := currentBidprice + 0.05;
+    ELSIF currentBidprice >= 1.00 AND currentBidprice <= 4.99 THEN
+        minBidPrice := currentBidprice + 0.25;
+    ELSIF currentBidprice >= 5.00 AND currentBidprice <= 24.99 THEN
+        minBidPrice := currentBidprice + 0.50;
+    ELSIF currentBidprice >= 25.00 AND currentBidprice <= 99.99 THEN
+        minBidPrice := currentBidprice + 1.00;
+    ELSIF currentBidprice >= 100.00 AND currentBidprice <= 249.99 THEN
+        minBidPrice := currentBidprice + 2.50;
+    ELSIF currentBidprice >= 250.00 AND currentBidprice <= 499.99 THEN
+        minBidPrice := currentBidprice + 5.00;
+    ELSIF currentBidprice >= 500.00 AND currentBidprice <= 999.99 THEN
+        minBidPrice := currentBidprice + 10.00;
+    ELSE
+        minBidPrice := currentBidprice + 25.00;
+    END IF;
+    	UPDATE bid_items set min_bid = minBidPrice where item_number = itemno;
+        UPDATE bid_items set bid_count = bid_count + 1 where item_number = itemno;
+END;
+
+BEGIN
+update_minbid(372922383112);
+END;

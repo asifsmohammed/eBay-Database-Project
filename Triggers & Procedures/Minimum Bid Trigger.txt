@@ -1,0 +1,9 @@
+CREATE OR REPLACE TRIGGER update_bid_details
+AFTER INSERT ON bids
+FOR EACH ROW
+DECLARE
+PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    update_minbid(:NEW.item_no, :NEW.bid_amount);
+    COMMIT;
+END;

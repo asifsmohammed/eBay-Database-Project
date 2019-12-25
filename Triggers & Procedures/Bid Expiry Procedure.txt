@@ -1,0 +1,18 @@
+set serveroutput ON;
+create or replace procedure bid_expiry(itemno IN bid_items.item_number%type, currentBid bids.bid_amount%TYPE) AS
+    thisEnddate bid_items.start_date%TYPE;
+    thisMinBid bid_items.min_bid%TYPE;
+BEGIN
+	select start_date + bid_duration into thisEnddate from bid_items where item_number = itemno;
+    select min_bid into thisMinBid from bid_items where item_number = itemno;
+    IF sysdate > thisEnddate THEN
+        Raise_Application_Error(-20000, 'The item you are trying to bid has ended.');
+    END IF;
+    IF currentBid < thisMinBid THEN
+        Raise_Application_Error(-20000, 'You have to bid atleast ' || thisMinBid);
+    END IF;
+END;
+
+BEGIN
+bid_expiry(372922383112);
+END;
